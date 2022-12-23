@@ -1,6 +1,7 @@
 <script lang="ts">
     import { supabase } from '$lib/supabaseClient';
     import logo from '$lib/assets/reflections_logo.webp';
+    import { redirect } from '@sveltejs/kit';
 
     let isLoading = false;
 
