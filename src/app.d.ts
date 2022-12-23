@@ -7,7 +7,7 @@ declare namespace App {
     // interface PageData {}
     // interface Platform {}
     interface Supabase {
-        Database: import('./DatabaseDefinitions').Database;
+        Database: import('$lib/types/supabase').Database;
         SchemaName: 'public';
     }
     interface PageData {
