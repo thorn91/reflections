@@ -12,7 +12,7 @@
 		"test:unit": "vitest",
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
 		"format": "prettier --plugin-search-dir . --write .",
-        "update-types": "npx supabase gen types typescript --project-id \"$PROJECT_ID\" > types/supabase.ts"
+		"update-types": "npx supabase gen types typescript --project-id \"glnixxgyzbiceqgkqpnm\" > src/lib/types/supabase.ts"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.28.1",
@@ -40,6 +40,8 @@
 	"type": "module",
 	"dependencies": {
 		"@supabase/auth-helpers-sveltekit": "^0.8.6",
-		"@supabase/supabase-js": "^2.2.2"
+		"@supabase/supabase-js": "^2.2.2",
+		"node-sass": "^8.0.0",
+		"sass": "^1.57.1"
 	}
 }

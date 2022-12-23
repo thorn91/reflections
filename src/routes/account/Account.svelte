@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import type { AuthSession } from '@supabase/supabase-js';
 	import { supabase } from '$lib/supabaseClient';
+	import { getProfileByUserId } from '$lib/util/account.service';
 
 	export let session: AuthSession;
 
@@ -19,19 +20,13 @@
 			loading = true;
 			const { user } = session;
 
-			const { data, error, status } = await supabase
-				.from('profiles')
-				.select(`username, website, avatar_url`)
-				.eq('id', user.id)
-				.single();
+			const data = await getProfileByUserId(user.id);
 
 			if (data) {
 				username = data.username;
 				website = data.website;
 				avatarUrl = data.avatar_url;
 			}
-
-			if (error && status !== 406) throw error;
 		} catch (error) {
 			if (error instanceof Error) {
 				alert(error.message);
@@ -54,7 +49,7 @@
 				updated_at: new Date(),
 			};
 
-			let { error } = await supabase.from('profiles').upsert(updates);
+			let { error } = await supabase.from('account').upsert(updates);
 
 			if (error) throw error;
 		} catch (error) {

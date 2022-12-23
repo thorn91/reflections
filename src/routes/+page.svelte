@@ -1,7 +1,7 @@
 <script>
 	import { page } from '$app/stores';
-	import Account from './account/Account.svelte';
 	import Auth from './auth/Auth.svelte';
+	import Dashboard from './dashboard/Dashboard.svelte';
 </script>
 
 <svelte:head>
@@ -12,5 +12,5 @@
 {#if !$page.data.session}
 	<Auth />
 {:else}
-	<Account session={$page.data.session} />
+	<Dashboard session={$page.data.session} />
 {/if}
