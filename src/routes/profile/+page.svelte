@@ -10,12 +10,14 @@
 	let username: string | null = null;
 	let website: string | null = null;
 	let avatarUrl: string | null = null;
-    console.log(session);
-    
 
-	onMount(() => {
-		// getProfile();
+	onMount(async () => {
+		await getProfile();
 	});
+
+    async function getProfile() {
+    
+    }
 
 	// const getProfile = async () => {
 	// 	try {

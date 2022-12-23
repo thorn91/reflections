@@ -15,8 +15,20 @@ export async function getProfileByUserId(userId: string) {
     return data;
 }
 
+export async function upsertProfile(profile: Profile) {
+    const { data, error, status } = await supabase
+        .from('profiles')
+        .upsert(profile);
+
+    if (!data || status !== 201) {
+        throw error;
+    }
+
+    return error;
+}
+
 export function mustUpdateProfile(profile: Profile) {
-    return !profile?.username;
+    return !profile.created_at || !profile?.username;
 }
 
 export type Profile = Database['public']['Tables']['profiles']['Row'];
