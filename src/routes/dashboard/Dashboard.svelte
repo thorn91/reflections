@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { AuthSession } from '@supabase/supabase-js';
-	import { getProfileByUserId } from '$lib/util/account.service';
+	import { getProfileByUserId } from '$lib/util/services/profile.service';
 
 	export let session: AuthSession;
 
 	const user = session.user;
+
 	let loading = false;
 
 	onMount(async () => {
@@ -16,6 +17,7 @@
         loading = true;
 		try {
 			const data = await getProfileByUserId(user.id);
+            
 		} catch (error) {
 			console.error(error);
 		} finally {
