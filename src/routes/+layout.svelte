@@ -25,6 +25,8 @@
     };
 
     async function handleLogout() {
+        await supabase.auth.signOut();
+        isAuthenticated = false;
         goto('/login');
     }
 
