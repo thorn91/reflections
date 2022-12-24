@@ -19,6 +19,7 @@ export interface Database {
           website: string | null
           created_at: string | null
           last_name: string | null
+          about: string | null
         }
         Insert: {
           id: string
@@ -29,6 +30,7 @@ export interface Database {
           website?: string | null
           created_at?: string | null
           last_name?: string | null
+          about?: string | null
         }
         Update: {
           id?: string
@@ -39,6 +41,7 @@ export interface Database {
           website?: string | null
           created_at?: string | null
           last_name?: string | null
+          about?: string | null
         }
       }
     }

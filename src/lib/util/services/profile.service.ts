@@ -1,5 +1,27 @@
+import { page } from '$app/stores';
+import { currUserProfile } from '$lib/stores';
 import { supabase } from '$lib/supabaseClient';
 import type { Database } from '$lib/types/supabase';
+import { getSupabase } from '@supabase/auth-helpers-sveltekit';
+import { get } from 'svelte/store';
+
+export async function getCurrentUserProfile() {
+    let profile = get(currUserProfile);
+
+    if (profile) {
+        return profile;
+    }
+
+    const { user } = (await supabase.auth.getUser()).data;
+
+    if (user === null) {
+        throw new Error('User not found for current session');
+    }
+
+    profile = await getProfileByUserId(user.id);
+    currUserProfile.set(profile);
+    return profile;
+}
 
 export async function getProfileByUserId(userId: string) {
     const { data, error, status } = await supabase
@@ -24,7 +46,7 @@ export async function upsertProfile(profile: Profile) {
         throw error;
     }
 
-    return error;
+    return data;
 }
 
 export function mustUpdateProfile(profile: Profile) {
