@@ -1,13 +1,13 @@
 <script lang="ts">
     import logo from '$lib/assets/reflections_logo.webp';
     import { supabase } from '$lib/supabaseClient';
-    
+
     export let url: string | null;
 
-    let constructedUrl: string;
+    let constructedUrl: string | null;
 
     async function downloadImage(url: string) {
-        const {data, error} = await supabase.storage.from('avatars').download(url);
+        const { data, error } = await supabase.storage.from('avatars').download(url);
         if (error) {
             throw error;
         }
@@ -17,6 +17,8 @@
 
     $: if (url) {
         downloadImage(url);
+    } else {
+        constructedUrl = null;
     }
 </script>
 

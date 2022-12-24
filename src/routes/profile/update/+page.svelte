@@ -3,14 +3,15 @@
     import type { PageData } from './$types';
     import { supabase } from '$lib/supabaseClient';
     import Avatar from '$lib/components/profile/Avatar.svelte';
+    import { currUserProfile } from '$lib/stores';
 
     export let data: PageData;
-
-    let files: FileList;
-
     let { profile } = data;
 
+    let files: FileList;
     let fileInput: HTMLInputElement;
+
+    currUserProfile.subscribe(prof => (profile = prof));
 
     async function updateProfile() {
         await upsertProfile(profile);
@@ -27,7 +28,11 @@
 
         const file = files[0];
         const fileExt = file.name.split('.').pop();
-        const filePath = `${Math.random()}.${fileExt}`;
+        const filePath = `${profile.id}.${fileExt}`;
+
+        if (profile.avatar_url) {
+            await removeAvatar();
+        }
 
         let { error } = await supabase.storage.from('avatars').upload(filePath, file);
 
@@ -41,7 +46,6 @@
 
     async function removeAvatar() {
         deleteProfileAvatar(profile);
-        profile.avatar_url = '';
     }
 </script>
 

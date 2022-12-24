@@ -52,15 +52,17 @@ export async function upsertProfile(profile: Profile) {
 
 export async function deleteProfileAvatar(profile: Profile) {
     if (!profile.avatar_url) {
-        return profile;
+        return;
     }
 
-    const { data, error } = await supabase.storage.from('avatars').remove([profile.avatar_url]);
+    const { error } = await supabase.storage
+        .from('avatars')
+        .remove([`${profile.avatar_url}`]);
+
     if (error) throw error;
 
     profile.avatar_url = '';
     upsertProfile(profile);
-    return profile;
 }
 
 export function mustUpdateProfile(profile: Profile) {
