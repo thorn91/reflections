@@ -1,6 +1,6 @@
 <script lang="ts">
     import { supabase } from '$lib/supabaseClient';
-    import { invalidate } from '$app/navigation';
+    import { goto, invalidate } from '$app/navigation';
     import { onMount } from 'svelte';
     import { fade, fly } from 'svelte/transition';
     import '../app.css';
@@ -17,11 +17,16 @@
     let showMobileMenu = false;
     let profile: Profile;
 
-    const isAuthenticated = data.session?.user?.aud === 'authenticated';
+    let isAuthenticated = false;
 
     const updateProfile = (newProfile: Profile) => {
         profile = newProfile;
+        isAuthenticated = data.session?.user?.aud === 'authenticated';
     };
+
+    async function handleLogout() {
+        goto('/login');
+    }
 
     currUserProfile.subscribe(updateProfile);
 
@@ -229,17 +234,21 @@
                             <div class="flex flex-shrink-0 bg-gray-700 p-4">
                                 <a href="#" class="group block flex-shrink-0">
                                     <div class="flex items-center">
-                                        <div>
-                                            <Avatar bind:url={$currUserProfile.avatar_url} />
-                                        </div>
-                                        <div class="ml-3">
-                                            <p class="text-base font-medium text-white">Tom Cook</p>
-                                            <p
-                                                class="text-sm font-medium text-gray-400 group-hover:text-gray-300"
-                                            >
-                                                View profile
-                                            </p>
-                                        </div>
+                                        {#if $currUserProfile}
+                                            <div>
+                                                <Avatar bind:url={$currUserProfile.avatar_url} />
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-base font-medium text-white">
+                                                    Tom Cook
+                                                </p>
+                                                <p
+                                                    class="text-sm font-medium text-gray-400 group-hover:text-gray-300"
+                                                >
+                                                    View profile
+                                                </p>
+                                            </div>
+                                        {/if}
                                     </div>
                                 </a>
                             </div>
@@ -255,12 +264,17 @@
                 >
                     <div class="flex min-h-0 flex-1 flex-col bg-gray-800">
                         <div class="flex flex-1 flex-col overflow-y-auto pt-5 pb-4">
-                            <div class="flex flex-shrink-0 items-center px-4">
+                            <div class="flex flex-shrink-0 items-center px-4 justify-between">
                                 <img
                                     class="h-8 w-auto rounded-full"
                                     src={logo}
                                     alt="Your Company"
                                 />
+                                <button
+                                    on:click={handleLogout}
+                                    class="text-sm font-thin text-gray-300 hover:text-indigo-600"
+                                    >Sign out</button
+                                >
                             </div>
                             <nav class="mt-5 flex-1 space-y-1 px-2">
                                 <a
@@ -398,19 +412,23 @@
                         <div class="flex flex-shrink-0 bg-gray-700 p-4">
                             <a href="#" class="group block w-full flex-shrink-0">
                                 <div class="flex items-center">
-                                    <div>
-                                        <Avatar bind:url={$currUserProfile.avatar_url} />
-                                    </div>
-                                    <div class="ml-3">
-                                        <p class="text-sm font-medium text-white">
-                                            {`${$currUserProfile?.first_name ?? ''} ${$currUserProfile?.last_name ?? ''}`}
-                                        </p>
-                                        <p
-                                            class="text-xs font-medium text-gray-300 group-hover:text-gray-200"
-                                        >
-                                            View profile
-                                        </p>
-                                    </div>
+                                    {#if $currUserProfile}
+                                        <div>
+                                            <Avatar bind:url={$currUserProfile.avatar_url} />
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-white">
+                                                {`${$currUserProfile?.first_name ?? ''} ${
+                                                    $currUserProfile?.last_name ?? ''
+                                                }`}
+                                            </p>
+                                            <p
+                                                class="text-xs font-medium text-gray-300 group-hover:text-gray-200"
+                                            >
+                                                View profile
+                                            </p>
+                                        </div>
+                                    {/if}
                                 </div>
                             </a>
                         </div>
