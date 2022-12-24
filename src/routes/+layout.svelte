@@ -402,7 +402,9 @@
                                         <Avatar bind:url={$currUserProfile.avatar_url} />
                                     </div>
                                     <div class="ml-3">
-                                        <p class="text-sm font-medium text-white">Tom Cook</p>
+                                        <p class="text-sm font-medium text-white">
+                                            {`${$currUserProfile?.first_name ?? ''} ${$currUserProfile?.last_name ?? ''}`}
+                                        </p>
                                         <p
                                             class="text-xs font-medium text-gray-300 group-hover:text-gray-200"
                                         >

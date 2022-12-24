@@ -10,10 +10,22 @@
 
     let files: FileList;
     let fileInput: HTMLInputElement;
+    let personalErrorMsg = '';
 
     currUserProfile.subscribe(prof => (profile = prof));
 
-    async function updateProfile() {
+    async function updatePublicProfile() {
+        await upsertProfile(profile);
+    }
+
+    async function updatePersonalInformation() {
+        personalErrorMsg = '';
+
+        if (!profile.email || !profile.first_name || !profile.last_name) {
+            personalErrorMsg = 'Please fill all out fields before saving.';
+            return;
+        }
+
         await upsertProfile(profile);
     }
 
@@ -41,12 +53,14 @@
         }
 
         profile.avatar_url = filePath;
-        await updateProfile();
+        await updatePublicProfile();
     }
 
     async function removeAvatar() {
         deleteProfileAvatar(profile);
     }
+
+    const removeErrorMsg = () => personalErrorMsg = '';
 </script>
 
 <div>
@@ -57,7 +71,7 @@
             </div>
         </div>
         <div class="mt-5 md:col-span-2 md:mt-0">
-            <form action="#" on:submit|preventDefault={updateProfile}>
+            <form action="#" on:submit|preventDefault={updatePublicProfile}>
                 <div class="shadow sm:overflow-hidden sm:rounded-md">
                     <div class="space-y-6 bg-white px-4 py-5 sm:p-6">
                         <div class="grid grid-cols-3 gap-6">
@@ -99,7 +113,7 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Photo</label>
+                            <p class="block text-sm font-medium text-gray-700">Photo</p>
                             <div class="mt-1 flex items-center">
                                 <Avatar bind:url={profile.avatar_url} />
                                 <input
@@ -150,13 +164,13 @@
         <div class="md:col-span-1">
             <div class="px-4 sm:px-0">
                 <h3 class="text-lg font-medium leading-6 text-gray-900">Personal Information</h3>
-                <p class="mt-1 text-sm text-gray-600">
-                    Use a permanent address where you can receive mail.
-                </p>
+                {#if personalErrorMsg !== ''}
+                    <h4 class="text-md font-medium leading-6 text-red-900">{personalErrorMsg}</h4>
+                {/if}
             </div>
         </div>
         <div class="mt-5 md:col-span-2 md:mt-0">
-            <form action="#" method="POST">
+            <form on:submit|preventDefault={updatePersonalInformation}>
                 <div class="overflow-hidden shadow sm:rounded-md">
                     <div class="bg-white px-4 py-5 sm:p-6">
                         <div class="grid grid-cols-6 gap-6">
@@ -167,6 +181,8 @@
                                     >First name</label
                                 >
                                 <input
+                                    bind:value={profile.first_name}
+                                    on:change={removeErrorMsg}
                                     type="text"
                                     name="first-name"
                                     id="first-name"
@@ -181,6 +197,8 @@
                                     class="block text-sm font-medium text-gray-700">Last name</label
                                 >
                                 <input
+                                    bind:value={profile.last_name}
+                                    on:change={removeErrorMsg}
                                     type="text"
                                     name="last-name"
                                     id="last-name"
@@ -196,6 +214,8 @@
                                     >Email address</label
                                 >
                                 <input
+                                    bind:value={profile.email}
+                                    on:change={removeErrorMsg}
                                     type="text"
                                     name="email-address"
                                     id="email-address"
