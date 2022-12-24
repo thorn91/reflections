@@ -5,6 +5,7 @@
     import { goto } from '$app/navigation';
     import { getCurrentUserProfile } from '$lib/util/services/profile.service';
     import type { Session } from '@supabase/supabase-js';
+    import { isAlreadySignedUp } from '$lib/util/services/user.service';
 
     let isLoading = false;
     let isSigningUp = true;
@@ -48,6 +49,14 @@
 
     const handleUsernamePasswordSignUp = async () => {
         try {
+            const isEmailSignedUp = await isAlreadySignedUp(email);
+
+            if (isEmailSignedUp) {
+                alert('Email already exists, please sign in');
+                isSigningUp = false;
+                return;
+            }
+
             isLoading = true;
             const { data, error } = await supabase.auth.signUp({ email, password });
             if (error) throw error;
