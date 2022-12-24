@@ -2,14 +2,15 @@
     import { supabase } from '$lib/supabaseClient';
     import logo from '$lib/assets/reflections_logo.webp';
     import { redirect } from '@sveltejs/kit';
+    import { goto } from '$app/navigation';
+    import { getCurrentUserProfile } from '$lib/util/services/profile.service';
+    import type { Session } from '@supabase/supabase-js';
 
     let isLoading = false;
-
     let isSigningUp = true;
     let hasSentPasswordRecovery = false;
 
     let email: string;
-    let username: string;
     let firstname: string;
     let lastname: string;
     let password: string;
@@ -20,6 +21,7 @@
             const { error } = await supabase.auth.signInWithOtp({ email });
             if (error) throw error;
             alert('Check your email for the login link!');
+            goto('/signin', { replaceState: true, invalidateAll: true });
         } catch (error) {
             if (error instanceof Error) {
                 alert(error.message);
@@ -34,6 +36,7 @@
             isLoading = true;
             const { error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) throw error;
+            goto('/signin', { replaceState: true, invalidateAll: true });
         } catch (error) {
             if (error instanceof Error) {
                 alert(error.message);
@@ -58,7 +61,11 @@
         }
     };
 
-    const sendResetPassword = async () => {
+    const handleResetPassword = async () => {
+        if (!email) {
+            return;
+        }
+
         try {
             isLoading = true;
             const { error } = await supabase.auth.resetPasswordForEmail(email);
@@ -73,35 +80,47 @@
         }
     };
 
-    const changeSignInState = () => (isSigningUp = !isSigningUp);
+    function setIsSigningIn() {
+        isSigningUp = false;
+        isLoading = false;
+    }
+
+    function setIsSigningUp() {
+        isSigningUp = true;
+        isLoading = false;
+    }
 </script>
 
-<div class="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
+<div class="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8 bg-white">
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
-        <img class="mx-auto h-12 w-auto rounded-full" src={logo} alt="Your Company" />
-        <h1 class="mt-3 text-center text-4xl font-bold tracking-normal text-gray-50">
+        <img
+            class="mx-auto h-12 w-auto rounded-full border-gray-800 border-2 border-solid"
+            src={logo}
+            alt="Your Company"
+        />
+        <h1 class="mt-3 text-center text-4xl font-bold tracking-normal text-gray-800">
             ReflectIOns
         </h1>
     </div>
 
     <div id="formContainer" class="mt-24 sm:mx-auto sm:w-full sm:max-w-md">
-        <div class="flex justify-between text-lg mb-4 text-gray-50">
+        <div class="flex justify-between text-lg mb-4 text-gray-800">
             <h1
-                on:click={changeSignInState}
-                on:keydown={changeSignInState}
-                class={!isSigningUp ? 'text-indigo-300' : ''}
-            >
-                Sign in
-            </h1>
-            <h1
-                on:click={changeSignInState}
-                on:keydown={changeSignInState}
-                class={isSigningUp ? 'text-indigo-300' : ''}
+                on:click={setIsSigningUp}
+                on:keydown={setIsSigningUp}
+                class={isSigningUp ? 'text-indigo-600 underline underline-offset-4' : ''}
             >
                 Sign up
             </h1>
+            <h1
+                on:click={setIsSigningIn}
+                on:keydown={setIsSigningIn}
+                class={!isSigningUp ? 'text-indigo-600 underline underline-offset-4' : ''}
+            >
+                Sign in
+            </h1>
         </div>
-        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div class="bg-gray-300 py-8 px-4 shadow sm:rounded-lg sm:px-10">
             {#if isSigningUp}
                 <form class="space-y-6" on:submit|preventDefault={handleUsernamePasswordSignUp}>
                     <div>
@@ -139,7 +158,7 @@
                             type="submit"
                             disabled={isLoading}
                             class="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                            >{isLoading ? 'Loading...' : 'Sign in'}</button
+                            >{isLoading ? 'Loading...' : 'Sign up'}</button
                         >
                     </div>
                 </form>
@@ -162,9 +181,10 @@
                         </div>
                         <div class="flex justify-between mt-3 text-sm font-medium text-gray-700">
                             <label for="email" class="block">Password</label>
-                            <span
+                            <button
+                                on:click|preventDefault={handleResetPassword}
                                 class="text-xs place-self-end hover:text-indigo-500 hover:cursor-pointer"
-                                >reset password</span
+                                >reset password</button
                             >
                         </div>
                         <div class="mt-1">

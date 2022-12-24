@@ -3,9 +3,9 @@ import { redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
 
 export const actions: Actions = {
-    async default(event) {
-        const { supabaseClient } = await getSupabase(event);
-        await supabaseClient.auth.signOut();
-        throw redirect(303, '/');
-    }
+	async default(event) {
+		const { supabaseClient } = await getSupabase(event);
+		await supabaseClient.auth.signOut();
+		throw redirect(303, '/login');
+	}
 };
