@@ -6,6 +6,7 @@
 	export let session: AuthSession;
 
 	const user = session.user;
+
 	let loading = false;
 
 	onMount(async () => {
@@ -16,6 +17,7 @@
         loading = true;
 		try {
 			const data = await getProfileByUserId(user.id);
+            
 		} catch (error) {
 			console.error(error);
 		} finally {

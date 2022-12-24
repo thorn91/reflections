@@ -13,7 +13,7 @@ export async function load<PageLoad>(event: RequestEvent) {
     const { session } = await getSupabase(event);
 
     if (!session) {
-        throw redirect(301, '/login');
+        throw redirect(302, '/1');
     }
 
     const profile = await getProfileByUserId(session.user.id);
