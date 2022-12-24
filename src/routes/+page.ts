@@ -3,7 +3,8 @@ import { getSupabase } from '@supabase/auth-helpers-sveltekit';
 import { error, redirect } from '@sveltejs/kit';
 import type { PageLoad, RequestEvent } from './$types';
 import type { Database } from '$lib/types/supabase';
-import { getProfileByUserId, mustUpdateProfile } from '$lib/util/services/profile.service';
+import { getCurrentUserProfile, getProfileByUserId, mustUpdateProfile } from '$lib/util/services/profile.service';
+import { currUser } from '$lib/stores';
 
 /**
  * If the user is logged in but does not have a complete profile, we will need to redirect 

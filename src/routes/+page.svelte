@@ -1,6 +1,6 @@
 <script>
 	import { page } from '$app/stores';
-	import Auth from './auth/Auth.svelte';
+	import Auth from '../lib/components/auth/Auth.svelte';
 	import Dashboard from './dashboard/Dashboard.svelte';
 </script>
 

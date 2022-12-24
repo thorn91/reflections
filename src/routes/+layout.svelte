@@ -5,15 +5,25 @@
     import { fade, fly } from 'svelte/transition';
     import '../app.css';
     import logo from '$lib/assets/reflections_logo.webp';
-    import type { LayoutLoadData } from './+layout';
-    import Auth from './auth/Auth.svelte';
+    import type { PageData } from './$types';
+    import { page } from '$app/stores';
+    import { currUserProfile } from '$lib/stores';
+    import type { Profile } from '$lib/util/services/profile.service';
+    import Avatar from '$lib/components/profile/Avatar.svelte';
 
-    export let data: LayoutLoadData;
+    export let data: PageData;
 
     let isMobile = true;
     let showMobileMenu = false;
+    let profile: Profile;
 
     const isAuthenticated = data.session?.user?.aud === 'authenticated';
+
+    const updateProfile = (newProfile: Profile) => {
+        profile = newProfile;
+    };
+
+    currUserProfile.subscribe(updateProfile);
 
     onMount(() => {
         window.addEventListener('resize', () => {
@@ -220,11 +230,7 @@
                                 <a href="#" class="group block flex-shrink-0">
                                     <div class="flex items-center">
                                         <div>
-                                            <img
-                                                class="inline-block h-10 w-10 rounded-full"
-                                                src={logo}
-                                                alt=""
-                                            />
+                                            <Avatar bind:url={$currUserProfile.avatar_url} />
                                         </div>
                                         <div class="ml-3">
                                             <p class="text-base font-medium text-white">Tom Cook</p>
@@ -393,11 +399,7 @@
                             <a href="#" class="group block w-full flex-shrink-0">
                                 <div class="flex items-center">
                                     <div>
-                                        <img
-                                            class="inline-block h-9 w-9 rounded-full"
-                                            src={logo}
-                                            alt=""
-                                        />
+                                        <Avatar bind:url={$currUserProfile.avatar_url} />
                                     </div>
                                     <div class="ml-3">
                                         <p class="text-sm font-medium text-white">Tom Cook</p>

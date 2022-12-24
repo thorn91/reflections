@@ -1,18 +1,48 @@
 <script lang="ts">
+    import { deleteProfileAvatar, upsertProfile } from '$lib/util/services/profile.service';
+    import type { PageData } from './$types';
     import { supabase } from '$lib/supabaseClient';
-    import { getCurrentUserProfile, getProfileByUserId } from '$lib/util/services/profile.service';
-    import type { Profile } from '$lib/util/services/profile.service';
-    import type { AuthSession, Session } from '@supabase/supabase-js';
-    import { onMount } from 'svelte';
-    import { page } from '$app/stores';
+    import Avatar from '$lib/components/profile/Avatar.svelte';
 
-    let profile;
+    export let data: PageData;
 
-    onMount(async () => {
-        profile = await getCurrentUserProfile();
-    });
+    let files: FileList;
 
-    async function updateProfile() {}
+    let { profile } = data;
+
+    let fileInput: HTMLInputElement;
+
+    async function updateProfile() {
+        await upsertProfile(profile);
+    }
+
+    async function updateAvatar() {
+        if (!files && !fileInput.files) {
+            return;
+        }
+
+        if (!files && fileInput.files) {
+            files = fileInput.files;
+        }
+
+        const file = files[0];
+        const fileExt = file.name.split('.').pop();
+        const filePath = `${Math.random()}.${fileExt}`;
+
+        let { error } = await supabase.storage.from('avatars').upload(filePath, file);
+
+        if (error) {
+            throw error;
+        }
+
+        profile.avatar_url = filePath;
+        await updateProfile();
+    }
+
+    async function removeAvatar() {
+        deleteProfileAvatar(profile);
+        profile.avatar_url = '';
+    }
 </script>
 
 <div>
@@ -54,6 +84,7 @@
                             >
                             <div class="mt-1">
                                 <textarea
+                                    bind:value={profile.about}
                                     id="about"
                                     name="about"
                                     rows="3"
@@ -61,74 +92,33 @@
                                     placeholder="you@example.com"
                                 />
                             </div>
-                            <p class="mt-2 text-sm text-gray-500">
-                                Brief description for your profile. URLs are hyperlinked.
-                            </p>
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Photo</label>
                             <div class="mt-1 flex items-center">
-                                <span
-                                    class="inline-block h-12 w-12 overflow-hidden rounded-full bg-gray-100"
-                                >
-                                    <svg
-                                        class="h-full w-full text-gray-300"
-                                        fill="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z"
-                                        />
-                                    </svg>
-                                </span>
+                                <Avatar bind:url={profile.avatar_url} />
+                                <input
+                                    class="hidden"
+                                    id="file-to-upload"
+                                    type="file"
+                                    accept=".png,.jpg"
+                                    on:change={updateAvatar}
+                                    bind:this={fileInput}
+                                    bind:files
+                                />
                                 <button
+                                    on:click={() => fileInput.click()}
                                     type="button"
                                     class="ml-5 rounded-md border border-gray-300 bg-white py-2 px-3 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                     >Change</button
                                 >
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700"
-                                >Cover photo</label
-                            >
-                            <div
-                                class="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6"
-                            >
-                                <div class="space-y-1 text-center">
-                                    <svg
-                                        class="mx-auto h-12 w-12 text-gray-400"
-                                        stroke="currentColor"
-                                        fill="none"
-                                        viewBox="0 0 48 48"
-                                        aria-hidden="true"
-                                    >
-                                        <path
-                                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                        />
-                                    </svg>
-                                    <div class="flex text-sm text-gray-600">
-                                        <label
-                                            for="file-upload"
-                                            class="relative cursor-pointer rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
-                                        >
-                                            <span>Upload a file</span>
-                                            <input
-                                                id="file-upload"
-                                                name="file-upload"
-                                                type="file"
-                                                class="sr-only"
-                                            />
-                                        </label>
-                                        <p class="pl-1">or drag and drop</p>
-                                    </div>
-                                    <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
-                                </div>
+                                <button
+                                    on:click={removeAvatar}
+                                    type="button"
+                                    class="ml-5 rounded-md border border-gray-300 bg-white py-2 px-3 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                    >Remove</button
+                                >
                             </div>
                         </div>
                     </div>
