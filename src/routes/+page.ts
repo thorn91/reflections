@@ -14,12 +14,6 @@ export async function load<PageLoad>(event: RequestEvent) {
     const { session } = await getSupabase(event);
 
     if (!session) {
-        throw redirect(302, '/1');
-    }
-
-    const profile = await getProfileByUserId(session.user.id);
-
-    if (mustUpdateProfile(profile)) {
-        throw redirect(301, '/profile/update');
+        throw redirect(302, '/login');
     }
 }
